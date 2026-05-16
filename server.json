@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.MukundaKatta/ulid",
+  "description": "MCP server: generate and decode ULIDs (sortable, 128-bit, base32 identifiers).",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/MukundaKatta/ulid-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/MukundaKatta/ulid-mcp",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@mukundakatta/ulid-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
