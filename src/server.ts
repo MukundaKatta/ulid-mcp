@@ -20,6 +20,9 @@ const VERSION = '0.1.0';
 // Crockford base32 alphabet — no I/L/O/U.
 const ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 
+// ULID timestamps are 48-bit millisecond values; this is the maximum (2^48 - 1).
+const MAX_TIMESTAMP_MS = 281474976710655;
+
 function encodeBase32(bigint: bigint, length: number): string {
   let n = bigint;
   const out: string[] = [];
@@ -42,7 +45,7 @@ function decodeBase32(s: string): bigint {
 
 /** Generate a fresh ULID for the given (or current) timestamp. */
 export function generate(now: number = Date.now()): string {
-  if (now < 0 || now > 281474976710655) throw new Error('timestamp out of range (48-bit ms)');
+  if (now < 0 || now > MAX_TIMESTAMP_MS) throw new Error('timestamp out of range (48-bit ms)');
   const tsPart = encodeBase32(BigInt(now), 10);
   const rand = randomBytes(10); // 80 bits of randomness
   let n = 0n;
@@ -69,6 +72,9 @@ export function decode(ulid: string): DecodedUlid {
   const ts = upper.slice(0, 10);
   const rand = upper.slice(10);
   const tsMs = Number(decodeBase32(ts));
+  // 10 base32 chars can encode 50 bits, but a valid ULID timestamp is only
+  // 48 bits. Reject overflow so we never report a nonsensical date.
+  if (tsMs > MAX_TIMESTAMP_MS) throw new Error('timestamp out of range (48-bit ms)');
   return {
     ulid: upper,
     timestamp_ms: tsMs,

@@ -41,3 +41,22 @@ test('rejects out-of-range timestamp', () => {
   assert.throws(() => generate(-1));
   assert.throws(() => generate(2 ** 60));
 });
+
+test('decode rejects a timestamp that overflows 48 bits', () => {
+  // 10 base32 chars can hold 50 bits; all-Z in the timestamp section decodes
+  // to a value larger than the 48-bit ULID maximum and must be rejected.
+  assert.throws(() => decode('ZZZZZZZZZZ0000000000000000'));
+});
+
+test('decode round-trips the maximum valid timestamp', () => {
+  const max = 281474976710655;
+  const d = decode(generate(max));
+  assert.equal(d.timestamp_ms, max);
+});
+
+test('decode is case-insensitive and normalizes to uppercase', () => {
+  const u = generate(1_700_000_000_000);
+  const d = decode(u.toLowerCase());
+  assert.equal(d.ulid, u);
+  assert.equal(d.timestamp_ms, 1_700_000_000_000);
+});
